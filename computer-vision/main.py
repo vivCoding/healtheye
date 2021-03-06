@@ -12,7 +12,7 @@ API_KEY = os.getenv("API_KEY")
 ENDPOINT = os.getenv("ENDPOINT")
 computervision_client = ComputerVisionClient(ENDPOINT, CognitiveServicesCredentials(API_KEY))
 
-image_path = "test/purdueWalc.jpg"
+image_path = "test/students.jpg"
 objects_results = computervision_client.detect_objects_in_stream(open(image_path, "rb"))
 
 print("Detecting objects in local image:")
