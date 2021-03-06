@@ -1,0 +1,14 @@
+azure-cognitiveservices-vision-computervision==0.7.0
+azure-common==1.1.26
+certifi==2020.12.5
+chardet==4.0.0
+idna==2.10
+isodate==0.6.0
+msrest==0.6.21
+oauthlib==3.1.0
+Pillow==8.1.2
+python-dotenv==0.15.0
+requests==2.25.1
+requests-oauthlib==1.3.0
+six==1.15.0
+urllib3==1.26.3
