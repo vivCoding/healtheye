@@ -9,7 +9,7 @@ def save_image(image, filename, ext):
         n += 1
     image.save("output/" + filename + "_" + str(n) + ext)
 
-def draw_objects(image_path, objects, label=False):
+def draw_objects(image_path, objects, label=False, show=False):
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font="assets/Hack-Bold.ttf", size=15)
@@ -21,12 +21,12 @@ def draw_objects(image_path, objects, label=False):
             object.rectangle.y + object.rectangle.h
         ), fill=None, outline="red", width=2)
         if label: draw.text((object.rectangle.x + 1, object.rectangle.y + 1), object.object_property, font=font, fill="red")
-    image.show()
+    if show: image.show()
 
     filename, ext = os.path.splitext(os.path.basename(image_path))
     save_image(image, filename, ext)
 
-def draw_faces(image_path, faces):
+def draw_faces(image_path, faces, show=False):
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(font="assets/Hack-Bold.ttf", size=15)
@@ -38,7 +38,7 @@ def draw_faces(image_path, faces):
             face.face_rectangle.top + face.face_rectangle.height
         ), fill=None, outline="red", width=2)
         # draw.text((face.face_rectangle.left + 1, face.face_rectangle.top + 1), "face", font=font, fill="red")
-    image.show()
+    if show: image.show()
 
     filename, ext = os.path.splitext(os.path.basename(image_path))
     save_image(image, filename, ext)
