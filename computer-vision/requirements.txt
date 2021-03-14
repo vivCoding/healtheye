@@ -3,9 +3,12 @@ azure-common==1.1.26
 certifi==2020.12.5
 chardet==4.0.0
 idna==2.10
+image-slicer==2.1.1
 isodate==0.6.0
 msrest==0.6.21
+numpy==1.20.1
 oauthlib==3.1.0
+opencv-python==4.5.1.48
 Pillow==8.1.2
 python-dotenv==0.15.0
 requests==2.25.1
