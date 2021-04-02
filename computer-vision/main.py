@@ -1,7 +1,11 @@
+import itertools
+import math
+
 from PIL import Image, ImageDraw, ImageFont
 import os
 import numpy as np
 import cv2
+import sys
 def save_image(image, filename, ext):
     n = 0
     if not os.path.isdir("output"):
@@ -91,7 +95,7 @@ def detect_people(filepath, show=False):
     print("Detecting people...")
     people = []
     with open(filepath, mode="rb") as test_data:
-        results = predictor.detect_image("4e4dce9c-c8c0-491f-a3eb-0121d32cd620", "Iteration6", test_data)
+        results = predictor.detect_image("4e4dce9c-c8c0-491f-a3eb-0121d32cd620", "Iteration8", test_data)
     #object_results = results.detect_objects_in_stream(open(filepath, "rb"))
     for prediction in results.predictions:
         if(prediction.tag_name == "person" and prediction.probability >.2):
@@ -110,18 +114,19 @@ def detect_people(filepath, show=False):
 #     count = len(face_results.faces)
 #     draw_faces(filepath, face_results.faces, show=show)
 #     return count
-
+#stuff to consider here
+#projection of the point of their head; onto the ground compare distances
 def get_points_from_box(prediction, pixw, pixh):
     # prediction.bounding_box.left = x
     # prediction.bounding_box.top = y
     # prediction.bounding_box.width = w
     # prediction.bounding_box.height = h
-    # center = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,
-    #           prediction.bounding_box.top*pixh + prediction.bounding_box.height*pixh)
-    # upoid = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,  prediction.bounding_box.top*pixh)
     center = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,
-              prediction.bounding_box.top*pixh + prediction.bounding_box.height*pixh/2)
+              prediction.bounding_box.top*pixh + prediction.bounding_box.height*pixh)
     upoid = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,  prediction.bounding_box.top*pixh)
+    # center = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,
+    #           prediction.bounding_box.top*pixh + prediction.bounding_box.height*pixh/2)
+    # upoid = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,  prediction.bounding_box.top*pixh)
     return center, upoid
 
 # #center = (width/2+x,y+length/2)
@@ -199,24 +204,39 @@ def compute_point_perspective_transformation( matrix, list_upoids):
         transformed_points_list.append([transformed_points[i][0][0], transformed_points[i][0][1]])
     return transformed_points_list
 
-def click_event(event, x, y):
-    # checking for left mouse clicks
-    if event == cv2.EVENT_LBUTTONDOWN:
+def click_event(event, x, y, flags, params):
+        # checking for left mouse clicks
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # displaying the coordinates
+            # on the Shell
+            val.append([x,y])
+
+            # displaying the coordinates
+            # on the image window
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(img, str(x) + ',' +
+                        str(y), (x, y), font,
+                        1, (255, 0, 0), 2)
+            cv2.imshow('image', img)
+
+        # checking for right mouse clicks
+
         # displaying the coordinates
         # on the Shell
-        print(x, ' ', y)
+
 
 if __name__ == "__main__":
     # TODO: use arguments to test image
     # example: python main.py test/students.jpg
     # webcam images are 1280 x 720
     #image_path = sys.argv[1]
-    image_path =  "/Users/shellyganga/Desktop/test3.png"
+    image_path =  "/Users/shellyganga/Desktop/sup2.png"
 
 
     count, predictions = detect_people(image_path, show=True)
 
     new_count = 0
+    val = []
     # slices = slice(image_path, 6)
     # for tile in slices:
     #     new_count += detect_people(tile.filename)[0]
@@ -237,28 +257,66 @@ if __name__ == "__main__":
     # reading the image
     # ix, iy = -1, -1
     # val = []
-    # img = cv2.imread(image_path, 1)
-    #
-    # # displaying the image
-    # cv2.imshow('image', img)
+
+    img = cv2.imread(image_path)
+    # load the image, clone it, and setup the mouse callback function
+
+    # displaying the image
+    cv2.imshow('image', img)
 
     # setting mouse hadler for the image
     # and calling the click_event() function
-    # cv2.setMouseCallback('image', click_event)
-    # while (len(val)!=4):
-    #     print(len(val))
-    #     check = -1
+    cv2.setMouseCallback('image', click_event)
+
+    # wait for a key to be pressed to exit
+    cv2.waitKey(0)
+
+    # close the window
+    cv2.destroyAllWindows()
+        #key = cv2.waitKey(1) & 0xFF
+        # if the 'r' key is pressed, reset the cropping region
+        # if key == ord("r"):
+        #     image = clone.copy()
+        # # if the 'c' key is pressed, break from the loop
+        # elif key == ord("c"):
+        #     break
+
+    # displaying the image
+    # while(True):
     #     cv2.imshow('image', img)
-    #     k = cv2.waitKey() & 0xFF
-    #     if k == 27:
+    #     if(len(val)==4):
     #         break
-    #     elif k == ord('a'):
-    #         val.append([ix, iy])
+    # cv2.setMouseCallback('image', click_event)
+    # setting mouse hadler for the image
+    # and calling the click_event() function
+
+
+    # wait for a key to be pressed to exit
+    #cv2.waitKey(0)
+
+    # close the window
+    # if(len(val)==4):
+    #     cv2.exit()
+    #     cv2.destroyAllWindows()
+        # if the 'r' key is pressed, reset the cropping region
+
+
+
+
+    # setting mouse hadler for the image
+    # and calling the click_event() function
+
+
+#put set region in a different function
     # for point in val:
     #     print(point)
     # cv2.destroyAllWindows()
-    # corner_points = [[val[0][0],val[0][1]], [val[1][0],val[1][1]], [val[2][0],val[2][1]], [val[3][0],val[3][1]]]
-    corner_points = [[100,304], [397,452], [709,249], [489,153]]
+    if(len(val)==4):
+        corner_points = [[val[0][0],val[0][1]], [val[1][0],val[1][1]], [val[2][0],val[2][1]], [val[3][0],val[3][1]]]
+    else:
+        sys.exit()
+        #do something
+    #corner_points = [[100,304], [397,452], [709,249], [489,153]]
     M, new_img = compute_perspective_transform(corner_points, cv2.imread(image_path))
     img = cv2.imread(image_path)
     h = img.shape[1]
@@ -270,6 +328,33 @@ if __name__ == "__main__":
     for point in transformed_points_list:
         print(point)
         new_img = cv2.circle(new_img, (point[0], point[1]), radius=5, color=(0, 0, 255), thickness=-1)
+        list_indexes = list(itertools.combinations(range(len(transformed_points_list)), 2))
+    distance_minimum = 100
+    count = 0
+    for i, pair in enumerate(itertools.combinations(transformed_points_list, r=2)):
+        print(pair)
+        #get distance from points - print this out see whats going on
+        if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(distance_minimum):
+            count = count + 1
+            # index_pt1 = list_indexes[i][0]
+            # index_pt2 = list_indexes[i][1]
+            # cv2.rectangle(new_img, (array_boxes_detected[index_pt1][1], array_boxes_detected[index_pt1][0]),
+            #                       (array_boxes_detected[index_pt1][3], array_boxes_detected[index_pt1][2]), COLOR_RED, 2)
+            # cv2.rectangle(new_img, (array_boxes_detected[index_pt2][1], array_boxes_detected[index_pt2][0]),
+            #                       (array_boxes_detected[index_pt2][3], array_boxes_detected[index_pt2][2]), COLOR_RED, 2)
+        # # Check if the distance between each combination of points is less than the minimum distance chosen
+        # if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(distance_minimum):
+        #     # Change the colors of the points that are too close from each other to red
+        #     if not (pair[0][0] > width or pair[0][0] < 0 or pair[0][1] > height + 200 or pair[0][1] < 0 or pair[1][
+        #         0] > width or pair[1][0] < 0 or pair[1][1] > height + 200 or pair[1][1] < 0):
+        #         change_color_on_topview(pair)
+        #         # Get the equivalent indexes of these points in the original frame and change the color to red
+        #         index_pt1 = list_indexes[i][0]
+        #         index_pt2 = list_indexes[i][1]
+        #         cv2.rectangle(frame, (array_boxes_detected[index_pt1][1], array_boxes_detected[index_pt1][0]),
+        #                       (array_boxes_detected[index_pt1][3], array_boxes_detected[index_pt1][2]), COLOR_RED, 2)
+        #         cv2.rectangle(frame, (array_boxes_detected[index_pt2][1], array_boxes_detected[index_pt2][0]),
+        #                       (array_boxes_detected[index_pt2][3], array_boxes_detected[index_pt2][2]), COLOR_RED, 2)
     # cv2.startWindowThread()
     # cv2.namedWindow("preview")
     # cv2.imshow("preview", new_img)
