@@ -83,12 +83,13 @@ def getFrames(video_path, desired_fps):
         frame_count = frame_count +1
         time = float(frame_count) / fps
         if frame_count % frame_frequency == 0:
-            array.append([[frame],[time]])
+            ppl, violations = getAttributes(frame)
+            array.append([[ppl violations],[time]])
     cv2.destroyAllWindows()
     cameraCapture.release()
     return getFrames
 
-
+#{ people, violations, time, location }
     # frameData = []
     # array = []
     # cameraCapture = cv2.VideoCapture('./res/2_003_013.mp4')
@@ -117,9 +118,9 @@ def getFrames(video_path, desired_fps):
     #
     # print(int(hours), int(minutes), int(seconds), int(milliseconds))
 
-    cv2.destroyAllWindows()
-    cameraCapture.release()
-#
+#     cv2.destroyAllWindows()
+#     cameraCapture.release()
+# #
 # desired_fps = 6
 # fps = capture.get(cv2.CAP_PROP_FPS)
 # frame_frequency = int(fps / desired_fps)

@@ -1,11 +1,12 @@
 import itertools
 import math
-
+import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 import os
 import numpy as np
 import cv2
 import sys
+from statsmodels.tsa.api import VAR
 def save_image(image, filename, ext):
     n = 0
     if not os.path.isdir("output"):
@@ -68,7 +69,7 @@ from azure.cognitiveservices.vision.customvision.training import CustomVisionTra
 from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateBatch, ImageFileCreateEntry, Region
 from msrest.authentication import ApiKeyCredentials
-import time
+
 
 
 from dotenv import load_dotenv
@@ -100,21 +101,11 @@ def detect_people(filepath, show=False):
     for prediction in results.predictions:
         if(prediction.tag_name == "person" and prediction.probability >.2):
             people.append(prediction)
-    #people = [object for object in object_results.objects if object.object_property == "person"]
-    # object_results2  = computervision_client.analyze_image_by_domain_in_stream(open(filepath, "rb"))
-    # print(object_results2.keys)
     count = len(people)
     draw_objects(filepath, people, show=show)
     return count, people
 
 
-# def detect_faces(filepath, show=False):
-#     print("Detecting faces...")
-#     face_results = computervision_client.analyze_image_in_stream(open(filepath, "rb"), ["faces"])
-#     count = len(face_results.faces)
-#     draw_faces(filepath, face_results.faces, show=show)
-#     return count
-#stuff to consider here
 #projection of the point of their head; onto the ground compare distances
 def get_points_from_box(prediction, pixw, pixh):
     # prediction.bounding_box.left = x
@@ -129,20 +120,6 @@ def get_points_from_box(prediction, pixw, pixh):
     # upoid = (prediction.bounding_box.width*pixw / 2 + prediction.bounding_box.left*pixw,  prediction.bounding_box.top*pixh)
     return center, upoid
 
-# #center = (width/2+x,y+length/2)
-# #upoid =(x+width/2, y)
-# """
-# Get the center of the bounding and the point "on the ground"
-# @ param = box : 2 points representing the bounding box
-# @ return = centroid (x1,y1) and ground point (x2,y2)
-# """
-# # Center of the box x = (x1+x2)/2 et y = (y1+y2)/2
-#
-# center_x = int(((box[1]+box[3])/2))
-# center_y = int(((box[0]+box[2])/2))
-# # Coordiniate on the point at the bottom center of the box
-# center_y_ground = center_y + ((box[2] - box[0])/2)
-# return (center_x,center_y),(center_x,int(center_y_ground))
 
 def get_centroids_and_uppoints(predictions, pixw, pixh):
     """
@@ -204,170 +181,112 @@ def compute_point_perspective_transformation( matrix, list_upoids):
         transformed_points_list.append([transformed_points[i][0][0], transformed_points[i][0][1]])
     return transformed_points_list
 
-def click_event(event, x, y, flags, params):
-        # checking for left mouse clicks
-        if event == cv2.EVENT_LBUTTONDOWN:
-            # displaying the coordinates
-            # on the Shell
-            val.append([x,y])
+# def click_event(event, x, y, flags, params):
+#         # checking for left mouse clicks
+#         if event == cv2.EVENT_LBUTTONDOWN:
+#             # displaying the coordinates
+#             # on the Shell
+#             val.append([x,y])
+#
+#             # displaying the coordinates
+#             # on the image window
+#             font = cv2.FONT_HERSHEY_SIMPLEX
+#             cv2.putText(img, str(x) + ',' +
+#                         str(y), (x, y), font,
+#                         1, (255, 0, 0), 2)
+#             cv2.imshow('image', img)
+#
+#         # checking for right mouse clicks
+#
+#         # displaying the coordinates
+#         # on the Shell
 
-            # displaying the coordinates
-            # on the image window
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(img, str(x) + ',' +
-                        str(y), (x, y), font,
-                        1, (255, 0, 0), 2)
-            cv2.imshow('image', img)
-
-        # checking for right mouse clicks
-
-        # displaying the coordinates
-        # on the Shell
-
-
-if __name__ == "__main__":
-    # TODO: use arguments to test image
-    # example: python main.py test/students.jpg
-    # webcam images are 1280 x 720
-    #image_path = sys.argv[1]
-    image_path =  "/Users/shellyganga/Desktop/sup2.png"
-
-
-    count, predictions = detect_people(image_path, show=True)
-
-    new_count = 0
-    val = []
-    # slices = slice(image_path, 6)
-    # for tile in slices:
-    #     new_count += detect_people(tile.filename)[0]
-    #     os.remove(tile.filename)
-    # if new_count > count:
-    #     count = new_count
-    print("Total people: ", count)
-    #[254,277], [474,369], [598,227], [446,139]
-    # 127
-    # 304
-    # 397
-    # 452
-    # 709
-    # 249
-    # 489
-    # 153
-    # [100, 260], [366, 485], [710, 275], [480, 133]
-    # reading the image
-    # ix, iy = -1, -1
-    # val = []
-
+#TODO: { people, violations, time, location }
+def analyzeFrame(image_path,val, dist_threshold):
+    #for now if val does not exist just set a default val array and we will deal with it later
+    #for now if covid violation threshold does not exist just set a default val array and we will deal with it later
     img = cv2.imread(image_path)
-    # load the image, clone it, and setup the mouse callback function
-
-    # displaying the image
-    cv2.imshow('image', img)
-
-    # setting mouse hadler for the image
-    # and calling the click_event() function
-    cv2.setMouseCallback('image', click_event)
-
-    # wait for a key to be pressed to exit
-    cv2.waitKey(0)
-
-    # close the window
-    cv2.destroyAllWindows()
-        #key = cv2.waitKey(1) & 0xFF
-        # if the 'r' key is pressed, reset the cropping region
-        # if key == ord("r"):
-        #     image = clone.copy()
-        # # if the 'c' key is pressed, break from the loop
-        # elif key == ord("c"):
-        #     break
-
-    # displaying the image
-    # while(True):
-    #     cv2.imshow('image', img)
-    #     if(len(val)==4):
-    #         break
-    # cv2.setMouseCallback('image', click_event)
-    # setting mouse hadler for the image
-    # and calling the click_event() function
-
-
-    # wait for a key to be pressed to exit
-    #cv2.waitKey(0)
-
-    # close the window
-    # if(len(val)==4):
-    #     cv2.exit()
-    #     cv2.destroyAllWindows()
-        # if the 'r' key is pressed, reset the cropping region
-
-
-
-
-    # setting mouse hadler for the image
-    # and calling the click_event() function
-
-
-#put set region in a different function
-    # for point in val:
-    #     print(point)
-    # cv2.destroyAllWindows()
-    if(len(val)==4):
-        corner_points = [[val[0][0],val[0][1]], [val[1][0],val[1][1]], [val[2][0],val[2][1]], [val[3][0],val[3][1]]]
-    else:
-        sys.exit()
-        #do something
-    #corner_points = [[100,304], [397,452], [709,249], [489,153]]
-    M, new_img = compute_perspective_transform(corner_points, cv2.imread(image_path))
-    img = cv2.imread(image_path)
+    #method to get the num of poeple in a image frame and
+    p_count, predictions = detect_people(image_path, show=True)
+    #val[x][y] ---> verticies of image
+    corner_points = [[val[0][0], val[0][1]], [val[1][0], val[1][1]], [val[2][0], val[2][1]], [val[3][0], val[3][1]]]
+    M, new_img = compute_perspective_transform(corner_points, img)
     h = img.shape[1]
     w = img.shape[0]
-    # image = Image.open(image_path)
-    # w, h = image.size
     array_centroids, array_uppoints = get_centroids_and_uppoints(predictions, h, w)
     transformed_points_list = compute_point_perspective_transformation(M, array_uppoints)
-    for point in transformed_points_list:
-        print(point)
-        new_img = cv2.circle(new_img, (point[0], point[1]), radius=5, color=(0, 0, 255), thickness=-1)
-        list_indexes = list(itertools.combinations(range(len(transformed_points_list)), 2))
-    distance_minimum = 100
-    count = 0
+    violation_count = 0
     for i, pair in enumerate(itertools.combinations(transformed_points_list, r=2)):
-        print(pair)
-        #get distance from points - print this out see whats going on
-        if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(distance_minimum):
-            count = count + 1
-            # index_pt1 = list_indexes[i][0]
-            # index_pt2 = list_indexes[i][1]
-            # cv2.rectangle(new_img, (array_boxes_detected[index_pt1][1], array_boxes_detected[index_pt1][0]),
-            #                       (array_boxes_detected[index_pt1][3], array_boxes_detected[index_pt1][2]), COLOR_RED, 2)
-            # cv2.rectangle(new_img, (array_boxes_detected[index_pt2][1], array_boxes_detected[index_pt2][0]),
-            #                       (array_boxes_detected[index_pt2][3], array_boxes_detected[index_pt2][2]), COLOR_RED, 2)
-        # # Check if the distance between each combination of points is less than the minimum distance chosen
-        # if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(distance_minimum):
-        #     # Change the colors of the points that are too close from each other to red
-        #     if not (pair[0][0] > width or pair[0][0] < 0 or pair[0][1] > height + 200 or pair[0][1] < 0 or pair[1][
-        #         0] > width or pair[1][0] < 0 or pair[1][1] > height + 200 or pair[1][1] < 0):
-        #         change_color_on_topview(pair)
-        #         # Get the equivalent indexes of these points in the original frame and change the color to red
-        #         index_pt1 = list_indexes[i][0]
-        #         index_pt2 = list_indexes[i][1]
-        #         cv2.rectangle(frame, (array_boxes_detected[index_pt1][1], array_boxes_detected[index_pt1][0]),
-        #                       (array_boxes_detected[index_pt1][3], array_boxes_detected[index_pt1][2]), COLOR_RED, 2)
-        #         cv2.rectangle(frame, (array_boxes_detected[index_pt2][1], array_boxes_detected[index_pt2][0]),
-        #                       (array_boxes_detected[index_pt2][3], array_boxes_detected[index_pt2][2]), COLOR_RED, 2)
-    # cv2.startWindowThread()
-    # cv2.namedWindow("preview")
-    # cv2.imshow("preview", new_img)
-    #
-    # cv2.waitKey()
-    #(237, 205)
-    # [134.45435, 370.00583]
-    # [72.73135, 250.46169]
-    # [10.99829, 252.83537]
-    # [125.809105, 362.99817]
+        # print(pair) --> testing methode
+        # get distance from points - print this out see whats going on
+        if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(dist_threshold):
+            violation_count = violation_count + 1
+    return p_count, violation_count
 
-    #new_img = cv2.circle(new_img, (226, 216), radius=10, color=(0, 0, 255), thickness=-1)
-    cv2.startWindowThread()
-    cv2.namedWindow("preview2")
-    cv2.imshow("preview2", new_img)
-    cv2.waitKey()
+def time_series(data, future_forcast, location):
+
+
+
+    #[[people, violations, time, location],[people, violations, time, location],[people, violations, time, location]]
+    columns = ["people", "violations", "time", "location"]
+
+
+
+    df = pd.DataFrame(data=data, columns=columns)
+    df = df[df["location"]==location]
+    df['time'] = pd.to_datetime(df['time'])
+
+    for i in range(len(df)):
+        df['time'][i] = df['time'][i].hour
+
+    dict_p = {}
+    dict_v = {}
+    for i in range(len(df)):
+        if(df['time'][i] not in dict_p.keys()):
+            dict_p[df['time'][i]] = [df["people"][i]]
+        else:
+            dict_p[df['time'][i]].append(df["people"][i])
+        if (df['time'][i] not in dict_v.keys()):
+            dict_v[df['time'][i]] = [df["violations"][i]]
+        else:
+            dict_v[df['time'][i]].append(df["violations"][i])
+
+    people = []
+    violations = []
+    times = []
+
+
+    for k, v in dict_p.items():
+        people.append(sum(v) / float(len(v)))
+        timet = pd.Timestamp(year=2000, month=1, day=1, hour=k, minute=0, second=0)
+        times.append(timet)
+
+
+
+    for k, v in dict_v.items():
+        violations.append(sum(v) / float(len(v)))
+
+    n_df = pd.DataFrame(columns=["people", "violations", "time"])
+    n_df["people"] = people
+    n_df["violations"] = violations
+    n_df["time"] = times
+    #df['time'] = pd.to_datetime(df['time'], format='%H')
+    #timet = pd.Timestamp(year=0, month=0, day=0, hour=5, minute=0, second=0)
+    n_df = n_df.sort_values(by=['time'])
+    n_df.time = pd.DatetimeIndex(n_df.time).to_period('H')
+    data1 = n_df[["people", 'violations']]
+    data1.index = n_df["time"]
+    print(data1)
+
+    model = VAR(data1)
+    model_fit = model.fit()
+    #print(n_df["time"][len(n_df)-1].hour)
+    freq = (n_df["time"][0].hour - n_df["time"][len(n_df)-1].hour) / (len(n_df)-1)
+    steps = (future_forcast + n_df["time"][0].hour - n_df["time"][0].hour)/freq
+    pred = model_fit.forecast(model_fit.y, steps)
+    #pred 0 = num of ppl, pred 1 = violations
+    return pred[0], pred[1]
+
+
+
+
