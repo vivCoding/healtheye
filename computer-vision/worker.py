@@ -2,24 +2,26 @@ import queue
 import threading
 import time
 import cv2
-#from detections import Detections
 import os
 import shutil
+from draw_detections import draw_objects
 
 class Worker:
-    def __init__(self):
+    def __init__(self, vision):
+        self.vision = vision
         self._queue = queue.Queue()
         self._imshow_queue = queue.Queue()
         self._thread = threading.Thread(target=self.process_frames)
-        self._vision = Detections()
         self._running = False
         self._transactions = 0
         self.temp_folder = "temp"
+        self.max_temp = 30
 
     def add_frame(self, frame):
         self._queue.put(frame)
         # print ("added frame")
         self.start()
+        self.show_frames()
 
     def process_frames(self):
         if not os.path.exists(self.temp_folder):
@@ -30,20 +32,15 @@ class Worker:
         while self._running:
             frame = self._queue.get()
             file_path = os.path.join(self.temp_folder, str(self._transactions) + ".png")
-            img = cv2.imwrite(file_path, frame)
-            people = self._vision.detect_people(open(file_path, "rb"))
-            for person in people:
-                cv2.rectangle(frame,
-                    (person.rectangle.x, person.rectangle.y),
-                    (person.rectangle.x + person.rectangle.w, person.rectangle.y + person.rectangle.h),
-                    (0, 0, 255), 3
-                )
             cv2.imwrite(file_path, frame)
-            print ("Processing:", self._transactions, "/", self._queue.qsize(), ", we got", len(people))
+            # predictions = []
+            # people_count = 0
+            # violations = 0
+            predictions, people_count, violations = self.vision.analyzeFrame(file_path)
+            print ("Processing:", self._transactions, "/", self._queue.qsize(), ", we got", people_count, end="\r")
             self._transactions += 1
-            # self._imshow_queue.put([frame, people])
-            # do other api stuff here
-            if self._transactions >= 200:
+            self._imshow_queue.put([frame, predictions, people_count, violations])
+            if self._transactions >= self.max_temp:
                 shutil.rmtree(self.temp_folder)
                 os.mkdir(self.temp_folder)
 
@@ -56,82 +53,9 @@ class Worker:
         self._running = False
         self._thread.join()
 
-    def show_frames(self, fps):
-        # print ("showing frame")
-        if self._imshow_queue.qsize() > fps * 4:
+    def show_frames(self):
+        if self._imshow_queue.qsize() > 0:
             data = self._imshow_queue.get()
             frame = data[0]
             people = data[1]
-            for person in people:
-                cv2.rectangle(frame,
-                    (person.rectangle.x, person.rectangle.y),
-                    (person.rectangle.x + person.rectangle.w, person.rectangle.y + person.rectangle.h),
-                    (0, 0, 255), 3
-                )
-            cv2.imshow("video capture", frame)
-
-
-
-def getFrames(video_path, desired_fps):
-    array = []
-    cameraCapture = cv2.VideoCapture(video_path)
-    fps = cameraCapture.get(cv2.CV_CAP_PROP_FPS)
-    frame_frequency = int(fps / desired_fps)
-    frame_count = 0
-    while success:
-        success, frame = cameraCapture.read()
-        frame_count = frame_count +1
-        time = float(frame_count) / fps
-        if frame_count % frame_frequency == 0:
-            ppl, violations = getAttributes(frame)
-            array.append([[ppl violations],[time]])
-    cv2.destroyAllWindows()
-    cameraCapture.release()
-    return getFrames
-
-#{ people, violations, time, location }
-    # frameData = []
-    # array = []
-    # cameraCapture = cv2.VideoCapture('./res/2_003_013.mp4')
-    #
-    # success, frame = cameraCapture.read()
-    # while success:
-    #     if cv2.waitKey(1) == 27:
-    #         break
-    #     cv2.imshow('Test camera', frame)
-    #     frameData.append([frame])
-    #
-    #     success, frame = cameraCapture.read()
-    #     milliseconds = cameraCapture.get(cv2.CAP_PROP_POS_MSEC)
-    #     frameData.append([])
-    #     seconds = milliseconds//1000
-    #     milliseconds = milliseconds%1000
-    #     minutes = 0
-    #     hours = 0
-    #     if seconds >= 60:
-    #         minutes = seconds//60
-    #         seconds = seconds % 60
-    #
-    #     if minutes >= 60:
-    #         hours = minutes//60
-    #         minutes = minutes % 60
-    #
-    # print(int(hours), int(minutes), int(seconds), int(milliseconds))
-
-#     cv2.destroyAllWindows()
-#     cameraCapture.release()
-# #
-# desired_fps = 6
-# fps = capture.get(cv2.CAP_PROP_FPS)
-# frame_frequency = int(fps / desired_fps)
-# ret, frame  = capture.read()
-#     if ret is False:
-#         continue
-#     # to maintain desired fps, skip every few frames
-#     frame_count += 1
-#     if frame_count % frame_frequency == 0:
-#         worker.add_frame(frame)
-#         cv2.imshow("video capture", frame)
-#         key = cv2.waitKey(10)
-#         if key == ord(" "):
-#             break
+            draw_objects(frame, people)
