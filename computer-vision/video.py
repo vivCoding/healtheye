@@ -1,10 +1,10 @@
 import cv2
 import time
-from worker import Worker
 import os
-from detections import Detections
+from worker import Worker
 
-vision = Detections()
+
+
 
 worker = Worker()
 
