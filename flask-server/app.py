@@ -1,8 +1,8 @@
 from flask import Flask
-from flask import render_template, Response
 import pymongo
+app = Flask(__name__)
 #init the client
-uri = "Get The link in the discord group"
+uri = "mongodb://database41:udZWotnoErEf7YK6FBsmAWrcbU85xaYHxRBJSGlImVaSYX3BOA2KdLmfXCHclqDoaWw6aiWV1AAAOd1RvqGJaw==@database41.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@database41@"
 my_client = pymongo.MongoClient(uri)
 #create the database
 database = my_client["AIAzure_database"]
@@ -10,10 +10,18 @@ database = my_client["AIAzure_database"]
 covid_data = database['Covid']
 prediction_data = database['Prediction']
 
-
-@app.route("/")
-def home_page():
-    return render_template('index.html')
-
+covid_query = {}
+prediction_query = {}
+for query in covid_data.find():
+    covid_query = query
+for query in prediction_data.find():
+    prediction_query = query 
+del covid_query['_id']       
+@app.route('/')
+def home():
+  return {
+      'covid' : covid_query,
+      'prediction' : prediction_query
+  }
 if __name__ == '__main__':
-    app.run()
+    app.run() 
