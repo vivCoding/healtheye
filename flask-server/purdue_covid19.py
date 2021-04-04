@@ -1,9 +1,7 @@
 from tableauscraper import TableauScraper as TS
 import pymongo
 import json
-import purdue_covid19
-#update the data
-purdue_covid19
+
 #init the client
 uri = "Get the uri from Discord group"
 my_client = pymongo.MongoClient(uri)
