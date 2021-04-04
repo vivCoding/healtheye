@@ -10,8 +10,12 @@ def save_image(image, filename, ext):
     image.save("output/" + filename + "_" + str(n) + ext)
 
 # using basic cv2 to draw lol. Can use pillow later tho
-def draw_objects(image_path, objects):
-    img = cv2.imread(image_path)
+def draw_objects(image, objects, wait=False):
+    # file path, read it. Else, it's a cv2 image
+    if isinstance(image, str):
+        img = cv2.imread(image)
+    else:
+        img = image
     w = img.shape[1]
     h = img.shape[0]
 
@@ -21,9 +25,11 @@ def draw_objects(image_path, objects):
         color = (0, 0, 255)
         thickness = 2
         img = cv2.rectangle(img, start, end, color, thickness)
-    cv2.imshow(image_path, img)
-    cv2.waitKey(0) 
-    cv2.destroyAllWindows()
+    cv2.imshow("viewing", img)
+    if wait:
+        print ("Press any key to continue...")
+        cv2.waitKey(0) 
+        cv2.destroyAllWindows()
 
     # filename, ext = os.path.splitext(os.path.basename(image_path))
-    # save_image(image, filename, ext)
+    # save_image(img, filename, ext)

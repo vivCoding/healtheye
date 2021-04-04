@@ -22,6 +22,7 @@ class Vision:
     def detect_people(self, filepath, show=False):
         """Makes a call to custom vision api and use trained model to detect people
         """
+        if show: print ("Making call to vision api...")
         people = []
         with open(filepath, mode="rb") as image:
             results = self._predictor.detect_image(self._iteration_id, self._iteration_name, image)
@@ -29,7 +30,7 @@ class Vision:
             if(prediction.tag_name == "person" and prediction.probability > .2):
                 people.append(prediction)
         count = len(people)
-        if show: draw_objects(filepath, people)
+        if show: draw_objects(filepath, people, wait=True)
         return people
 
     def get_points_from_box(self, prediction, pixw, pixh):
@@ -98,18 +99,24 @@ class Vision:
         transformed_points = cv2.perspectiveTransform(list_points_to_detect, matrix)
         # Loop over the points and add them to the list that will be returned
         transformed_points_list = list()
-        for i in range(0, transformed_points.shape[0]):
-            transformed_points_list.append([transformed_points[i][0][0], transformed_points[i][0][1]])
+        try:
+            for i in range(0, transformed_points.shape[0]):
+                transformed_points_list.append([transformed_points[i][0][0], transformed_points[i][0][1]])
+        except Exception as e:
+            print ("computer point perspective transformation error", e)
         return transformed_points_list
     
     # TODO: { people, violations, time, location }
-    def analyzeFrame(self, image_path, val, dist_threshold):
+    def analyzeFrame(self, image_path, dist_threshold=100):
+        val = [[ 1022 ,  91 ], [1879 ,  228 ], [9 ,  883], [1637 ,  1072]]
         # for now if val does not exist just set a default val array and we will deal with it later
         # for now if covid violation threshold does not exist just set a default val array and we will deal with it later
         img = cv2.imread(image_path)
         # method to get the num of poeple in a image frame and
-        predictions = self.detect_people(image_path, show=True)
+        predictions = self.detect_people(image_path)
         p_count = len(predictions)
+        if p_count == 0:
+            return predictions, 0, 0
         # val[x][y] ---> verticies of image
         corner_points = [[val[0][0], val[0][1]], [val[1][0], val[1][1]], [val[2][0], val[2][1]], [val[3][0], val[3][1]]]
         M, new_img = self.compute_perspective_transform(corner_points, img)
@@ -119,8 +126,8 @@ class Vision:
         transformed_points_list = self.compute_point_perspective_transformation(M, array_uppoints)
         violation_count = 0
         for i, pair in enumerate(itertools.combinations(transformed_points_list, r=2)):
-            # print(pair) --> testing methode
+            # print(pair) --> testing method
             # get distance from points - print this out see whats going on
             if math.sqrt((pair[0][0] - pair[1][0]) ** 2 + (pair[0][1] - pair[1][1]) ** 2) < int(dist_threshold):
                 violation_count = violation_count + 1
-        return p_count, violation_count
+        return predictions, p_count, violation_count
