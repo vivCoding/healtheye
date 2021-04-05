@@ -4,8 +4,6 @@ import os
 from worker import Worker
 
 def analyze_video(capture, vision, desired_fps=1, size=None, show=False):
-    print ("Starting thread worker...")
-    worker = Worker(vision)
     print ("Setting up capture...")
     capture = cv2.VideoCapture(capture)
     if not capture.isOpened():
@@ -20,6 +18,9 @@ def analyze_video(capture, vision, desired_fps=1, size=None, show=False):
     frame_count = 0
     print ("Previous FPS:", fps)
     print ("Current FPS:", desired_fps)
+
+    print ("Starting thread worker...")
+    worker = Worker(vision, frame_delay=time_delay)
 
     print ("Displaying video. Press space to exit...")
     while True:
@@ -40,7 +41,7 @@ def analyze_video(capture, vision, desired_fps=1, size=None, show=False):
         # to maintain fps
         time.sleep(time_delay)
 
-    print ("\nExiting...")
+    print ("\nFinished reading. Exiting soon...")
     worker.join()
     capture.release()
     cv2.destroyAllWindows()

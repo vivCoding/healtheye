@@ -25,8 +25,8 @@ def main():
 
     # really cheap arg parsing
     # TODO: add more options using argparse
-    fps = 5
-    size = (1280, 720)
+    fps = int(os.getenv("FPS"))
+    size = (int(os.getenv("RESOLUTION_X")), int(os.getenv("RESOLUTION_Y")))
     for opt, arg in opts:
         if opt == "-h":
             print ("-" * 30)

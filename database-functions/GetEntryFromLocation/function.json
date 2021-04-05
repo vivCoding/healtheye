@@ -9,7 +9,9 @@
       "methods": [
         "get",
         "post"
-      ]
+      ],
+      "route": "getentryfromlocation",
+      "location": "{Query.location}"
     },
     {
       "type": "http",
