@@ -27,7 +27,7 @@ class Vision:
         with open(filepath, mode="rb") as image:
             results = self._predictor.detect_image(self._iteration_id, self._iteration_name, image)
         for prediction in results.predictions:
-            if(prediction.tag_name == "person" and prediction.probability > .2):
+            if(prediction.tag_name == "person" and prediction.probability > .5):
                 people.append(prediction)
         count = len(people)
         if show: draw_objects(filepath, people, wait=True)
@@ -108,7 +108,8 @@ class Vision:
     
     # TODO: { people, violations, time, location }
     def analyzeFrame(self, image_path, dist_threshold=100):
-        val = [[ 1022 ,  91 ], [1879 ,  228 ], [9 ,  883], [1637 ,  1072]]
+        # val = [[ 635 ,  293 ], [1879 ,  228 ], [9 ,  883], [1637 ,  1072]]
+        # val = [[]]
         # for now if val does not exist just set a default val array and we will deal with it later
         # for now if covid violation threshold does not exist just set a default val array and we will deal with it later
         img = cv2.imread(image_path)
@@ -118,12 +119,18 @@ class Vision:
         if p_count == 0:
             return predictions, 0, 0
         # val[x][y] ---> verticies of image
-        corner_points = [[val[0][0], val[0][1]], [val[1][0], val[1][1]], [val[2][0], val[2][1]], [val[3][0], val[3][1]]]
+        # corner_points = [[val[0][0], val[0][1]], [val[1][0], val[1][1]], [val[2][0], val[2][1]], [val[3][0], val[3][1]]]
+        # corner_points = [[100, 304], [397,452], [709,249], [489,153]]
+        corner_points = [[ 1883 ,  654 ], [ 743 ,  972], [ 11 ,  467 ], [ 961 ,  225 ]]
         M, new_img = self.compute_perspective_transform(corner_points, img)
         h = img.shape[1]
         w = img.shape[0]
         array_centroids, array_uppoints = self.get_centroids_and_uppoints(predictions, h, w)
         transformed_points_list = self.compute_point_perspective_transformation(M, array_uppoints)
+        # for point in transformed_points_list:
+        #     print(point)
+        #     new_img = cv2.circle(new_img, (point[0], point[1]), radius=5, color=(0, 0, 255), thickness=-1)
+        # cv2.imshow("analyze stuff", new_img)
         violation_count = 0
         for i, pair in enumerate(itertools.combinations(transformed_points_list, r=2)):
             # print(pair) --> testing method

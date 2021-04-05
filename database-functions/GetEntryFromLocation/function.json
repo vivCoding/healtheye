@@ -1,0 +1,29 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "doc",
+      "databaseName": "covid-database",
+      "collectionName": "entries",
+      "connectionStringSetting": "CosmosDBConnectionString",
+      "sqlQuery": "select * from c where c.location.name = {location}"
+    }
+  ]
+}

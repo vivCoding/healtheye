@@ -37,9 +37,9 @@ class Worker:
             # people_count = 0
             # violations = 0
             predictions, people_count, violations = self.vision.analyzeFrame(file_path)
-            print ("Processing:", self._transactions, "/", self._queue.qsize(), ", we got", people_count, end="\r")
+            print ("Process:", self._transactions, ", Queued:", self._queue.qsize(), ", People:", people_count, ", Violations:", violations, end="\r")
             self._transactions += 1
-            self._imshow_queue.put([frame, predictions, people_count, violations])
+            self._imshow_queue.put([frame, predictions])
             if self._transactions >= self.max_temp:
                 shutil.rmtree(self.temp_folder)
                 os.mkdir(self.temp_folder)
@@ -59,3 +59,8 @@ class Worker:
             frame = data[0]
             people = data[1]
             draw_objects(frame, people)
+
+    # def send_to_db(self):
+
+
+    

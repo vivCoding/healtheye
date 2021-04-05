@@ -1,0 +1,30 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ],
+      "route": "putentry"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "doc",
+      "databaseName": "covid-database",
+      "collectionName": "entries",
+      "createIfNotExists": "true",
+      "connectionStringSetting": "CosmosDBConnectionString"
+    }
+  ]
+}

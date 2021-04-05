@@ -10,11 +10,11 @@ def main():
     load_dotenv()
 
     PREDICTION_KEY = os.getenv("PREDICTION_KEY")
-    ENDPOINT = os.getenv("ENDPOINT")
+    VISION_ENDPOINT = os.getenv("VISION_ENDPOINT")
     ITERATION_ID = os.getenv("ITERATION_ID")
     ITERATION_NAME = os.getenv("ITERATION_NAME")
 
-    vision = Vision(PREDICTION_KEY, ENDPOINT, ITERATION_ID, ITERATION_NAME)
+    vision = Vision(PREDICTION_KEY, VISION_ENDPOINT, ITERATION_ID, ITERATION_NAME)
 
     try:
         argv = sys.argv[1:]
@@ -25,7 +25,7 @@ def main():
 
     # really cheap arg parsing
     # TODO: add more options using argparse
-    fps = 1
+    fps = 5
     size = (1280, 720)
     for opt, arg in opts:
         if opt == "-h":
@@ -39,7 +39,7 @@ def main():
             print ("-" * 30)
             exit(0)
         elif opt == "-i":
-            predictions, people_count, violations = vision.analyzeFrame(arg, dist_threshold=1000)
+            predictions, people_count, violations = vision.analyzeFrame(arg, dist_threshold=100)
             print ("Number of people:", people_count)
             print ("Violations:", violations)
             draw_objects(arg, predictions, wait=True)
@@ -48,6 +48,5 @@ def main():
         elif opt == "-c":
             analyze_video(int(arg), vision, desired_fps=fps, size=size, show=True)
         
-
 if __name__ == "__main__":
     main()
