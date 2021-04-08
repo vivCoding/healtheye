@@ -81,14 +81,15 @@ class Worker:
             draw_objects(frame, people)
 
     def send_to_db(self):
-        location_name = os.getenv("LOCATION_NAME")
-        location_latitude = os.getenv("LOCATION_LAT")
-        location_longitude = os.getenv("LOCATION_LONG")
-        simulated = os.getenv("SIMULATED", "true") == "true"
+        location_name = os.getenv("LOCATION_NAME", "no location specified")
+        location_latitude = os.getenv("LOCATION_LAT", 0)
+        location_longitude = os.getenv("LOCATION_LONG", 0)
+        simulated = os.getenv("SIMULATED", "false") == "true"
+        send_to_db = os.getenv("SEND_TO_DB", "false") == "true"
         if simulated:
             current_hour = 12
             current_min = 0
-        while self.running:
+        while self.running and send_to_db:
             toadd = self._dbqueue.get()
             # this is just to simulate real data
             if simulated:

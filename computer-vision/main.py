@@ -39,7 +39,7 @@ def main():
             print ("-" * 30)
             exit(0)
         elif opt == "-i":
-            predictions, people_count, violations = vision.analyzeFrame(arg, dist_threshold=100)
+            predictions, people_count, violations = vision.analyzeFrame(arg, dist_threshold=50)
             print ("Number of people:", people_count)
             print ("Violations:", violations)
             draw_objects(arg, predictions, wait=True)

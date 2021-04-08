@@ -1,1 +1,1 @@
-# covid-monitor
+# HealthEye

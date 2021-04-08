@@ -27,6 +27,8 @@ def analyze_video(capture, vision, desired_fps=1, size=None, show=False):
         ret, frame  = capture.read()
         if ret is False:
             print ("\nVideo ended, cannot grab next frame")
+            print ("\nFinished reading. Exiting soon...")
+            worker.join()
             break
         # to maintain desired fps, skip every few frames
         frame_count += 1
@@ -37,11 +39,10 @@ def analyze_video(capture, vision, desired_fps=1, size=None, show=False):
             # cv2.imshow("video capture", frame)
             key = cv2.waitKey(10)
             if key == ord(" "):
+                worker.stop()
                 break
         # to maintain fps
         time.sleep(time_delay)
 
-    print ("\nFinished reading. Exiting soon...")
-    worker.join()
     capture.release()
     cv2.destroyAllWindows()

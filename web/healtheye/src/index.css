@@ -32,22 +32,29 @@ code {
 
 .App {
   text-align: center;
-  background:#CFB53B;
-  height:100vh;
+  background: #CFB53B;
+  height: 100vh;
   width: auto;
-  
+
 }
 
 .middle {
   display: flex;
-  
+
   margin-left: 80px;
   margin-top: 50px;
-  
+
 }
+
 .map {
-  margin-left: 10px;
+  margin-left: 0px;
   margin-top: 20px;
+  flex-flow: row;
+}
+
+.google {
+  display: flex;
+  flex-flow: row;
 }
 
 
@@ -57,7 +64,7 @@ code {
 .dashboard {
   display: flex;
   flex-flow: column;
-  
+
 }
 
 
@@ -71,8 +78,8 @@ code {
   color: #333;
   min-width: 50%;
   height: 35vh;
-  
-  margin-bottom: 15px;
+
+  margin-top: 10px;
 
 }
 
@@ -100,9 +107,9 @@ code {
   padding: 20px 30px;
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
   color: #333;
-  min-width: 50%;
-  min-height: 34vh;
-  margin-top: 10px;
+  min-width: 70%;
+  min-height: 72.5vh;
+  margin-left: 10px;
 
 }
 
@@ -131,5 +138,4 @@ code {
 
 .walc {
   background-color: red
-
 }
