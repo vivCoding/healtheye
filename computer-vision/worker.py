@@ -86,6 +86,7 @@ class Worker:
         location_longitude = os.getenv("LOCATION_LONG", 0)
         simulated = os.getenv("SIMULATED", "false") == "true"
         send_to_db = os.getenv("SEND_TO_DB", "false") == "true"
+        db_endpoint = os.getenv("DB_ENDPOINT", "")
         if simulated:
             current_hour = 12
             current_min = 0
@@ -110,7 +111,7 @@ class Worker:
                     "longitude": location_longitude
                 }
             }
-            r = requests.post("https://covid-db-access.azurewebsites.net/api/putentry", json=data)
+            r = requests.post(db_endpoint, json=data)
             resp = r.json()
             if r.status_code != 200:
                 print ("error sending to database!")
