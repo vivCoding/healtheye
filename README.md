@@ -10,6 +10,7 @@ HealthEye is an IoT system that allows you to monitor the number of people and s
 As proof of concept, we also included the ability for the system to input video files as well as camera feed.
 
 ## How we built it
+
 ![current_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/images/current_architecture.png)
 
 ### Computer Vision
@@ -32,6 +33,7 @@ Coming soon!
 
 ### Architecture Modification
 Our originally planned architecture consisted of this:
+
 ![planned_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/images/planned_architecture.png)
 
 We envisioned this solution to be scalable and modular, where it was easy to add a new Raspberry Pi (or any new device) to the system and add more data. [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/about-iot-hub) and [IoT Edge](https://docs.microsoft.com/en-us/azure/iot-edge/about-iot-edge?view=iotedge-2018-06) offered this type of scalability, and thus we wanted to utilize it to its max potential. After failure to properly install IoT Edge on the Raspberry Pi 4 correctly, we set it as a project for the future (after the hackathon demo). However, we still plan to use it to make this entire thing much more scalable and modular.
