@@ -2,13 +2,16 @@
 
 Submission to the [Microsoft Azure AI Hackathon 2021](https://devpost.com/software/healtheye)
 
+**Installation/setup docs coming soon!**
+
 ## What it does
 HealthEye is an IoT system that allows you to monitor the number of people and social distancing violations in a certain area. It uses a Raspberry Pi and camera system to analyze the number of people and the number of social distancing violations for a specific area. Additionally, it is able to forecast the number of people and social distancing violations for a future time that a user can select.
 
 As proof of concept, we also included the ability for the system to input video files as well as camera feed.
 
 ## How we built it
-![current_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/current_architecture.png)
+
+![current_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/images/current_architecture.png)
 
 ### Computer Vision
 We utilized [Azure Custom Vision API](https://docs.microsoft.com/en-us/azure/cognitive-services/custom-vision-service/) to detect people and their location in a video frame. We decided to use the Custom Vision AI rather than the [Object Detection API](https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/concept-object-detection) as we wanted to train our model on a diverse data set consisting of images of libraries, classrooms, and outdoor scenery.
@@ -22,11 +25,16 @@ We used [CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction
 ### Time Series Prediction (in progress):
 We utilized a multivariate time series model (VAR) to predict the number of individuals in a given location and the number of socially distanced violations for a distance threshold that a user could specify. We used data extracted from the CosmosDB database containing the same metrics, extracted from video frames.
 
+## Installation/Setup
+
+Coming soon!
+
 ## What's next for HealthEye
 
 ### Architecture Modification
 Our originally planned architecture consisted of this:
-![planned_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/planned_architecture.png)
+
+![planned_architecture](https://raw.githubusercontent.com/vivCoding/healtheye/main/docs/images/planned_architecture.png)
 
 We envisioned this solution to be scalable and modular, where it was easy to add a new Raspberry Pi (or any new device) to the system and add more data. [Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/about-iot-hub) and [IoT Edge](https://docs.microsoft.com/en-us/azure/iot-edge/about-iot-edge?view=iotedge-2018-06) offered this type of scalability, and thus we wanted to utilize it to its max potential. After failure to properly install IoT Edge on the Raspberry Pi 4 correctly, we set it as a project for the future (after the hackathon demo). However, we still plan to use it to make this entire thing much more scalable and modular.
 
