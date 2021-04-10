@@ -10,7 +10,7 @@
         "get",
         "post"
       ],
-      "route": "putentry"
+      "route": "getrecent"
     },
     {
       "type": "http",
@@ -19,13 +19,13 @@
     },
     {
       "type": "cosmosDB",
-      "direction": "out",
+      "direction": "in",
       "name": "doc",
       "databaseName": "covid-database",
       "collectionName": "entries",
-      "createIfNotExists": "true",
       "connectionStringSetting": "CosmosDBConnectionString",
-      "partitionKey": "/id"
+      "id": "recent",
+      "partitionKey": "recent"
     }
   ]
 }

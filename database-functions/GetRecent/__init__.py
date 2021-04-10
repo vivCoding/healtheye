@@ -12,14 +12,6 @@ def make_message(message={"status": "ok"}, status=200):
 def main(req: func.HttpRequest, doc:func.DocumentList) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    entries = []
-    for entry in doc:
-        if entry["id"] != "recent":
-            entries.append({
-                "people": entry["people"],
-                "violations": entry["violations"],
-                "time": entry["time"],
-                "location": entry["location"]
-            })
-
-    return make_message(entries)
+    return make_message({
+        "time": doc[0]["time"],
+    })

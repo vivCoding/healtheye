@@ -22,7 +22,6 @@ const App = () => {
             time: time,
             date: date
         });
-        console.log("nfwefwef");
         fetch("https://covid-db-access.azurewebsites.net/api/getentryfromtime?" + new URLSearchParams({
             time: date + " " + time
         })).then(response => {
@@ -42,8 +41,10 @@ const App = () => {
         
     }
 
-    useEffect(() => {
-        getData();
+    useEffect(async () => {
+        let response = await fetch("https://covid-db-access.azurewebsites.net/api/getrecent");
+        let data = await response.json();
+        await getData(data.time.slice(0, 10), data.time.slice(11, 19));
     }, [])
 
     const [dataToShow, updateData] = useState({});

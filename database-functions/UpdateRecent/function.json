@@ -1,0 +1,15 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "name": "documents",
+      "direction": "in",
+      "leaseCollectionName": "recent",
+      "connectionStringSetting": "CosmosDBConnectionString",
+      "databaseName": "covid-database",
+      "collectionName": "entries",
+      "createLeaseCollectionIfNotExists": "true"
+    }
+  ]
+}

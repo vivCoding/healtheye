@@ -14,11 +14,12 @@ def main(req: func.HttpRequest, doc:func.DocumentList) -> func.HttpResponse:
 
     entries = []
     for entry in doc:
-        entries.append({
-            "people": entry["people"],
-            "violations": entry["violations"],
-            "time": entry["time"],
-            "location": entry["location"]
-        })
+        if entry["id"] != "recent":
+            entries.append({
+                "people": entry["people"],
+                "violations": entry["violations"],
+                "time": entry["time"],
+                "location": entry["location"]
+            })
 
     return make_message(entries)
